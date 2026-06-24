@@ -1,0 +1,45 @@
+{
+  "id": "pf2e-narrative-forge",
+  "title": "PF2E Narrative Forge",
+  "description": "Adds localized narrative tools for Pathfinder 2e combat chat messages.",
+  "version": "0.0.4",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "crypto-vbrthr"
+    }
+  ],
+  "esmodules": [
+    "scripts/pf2e-narrative-forge.js"
+  ],
+  "styles": [
+    "styles/pf2e-narrative-forge.css"
+  ],
+  "languages": [
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "7",
+          "verified": "7"
+        }
+      }
+    ]
+  }
+}

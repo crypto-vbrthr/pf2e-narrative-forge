@@ -1,0 +1,29 @@
+{
+  "PF2E_NARRATIVE_FORGE.Settings.Enabled.Name": "Enable PF2E Narrative Forge",
+  "PF2E_NARRATIVE_FORGE.Settings.Enabled.Hint": "Enables or disables PF2E Narrative Forge features for this world.",
+
+  "PF2E_NARRATIVE_FORGE.Chat.Title": "PF2E Narrative Forge",
+  "PF2E_NARRATIVE_FORGE.Chat.DescribeButton": "Describe",
+  "PF2E_NARRATIVE_FORGE.Chat.UnknownActor": "The attacker",
+  "PF2E_NARRATIVE_FORGE.Chat.UnknownTarget": "the target",
+  "PF2E_NARRATIVE_FORGE.Chat.WithItem": " with {item}",
+  "PF2E_NARRATIVE_FORGE.Chat.DamageText": "{damage} damage",
+  "PF2E_NARRATIVE_FORGE.Chat.DamageTextUnknown": "damage",
+  "PF2E_NARRATIVE_FORGE.Chat.DamageTypeText": " ({damageTypes})",
+  "PF2E_NARRATIVE_FORGE.Chat.SimpleHitNarration": "{attacker} hits {target}{itemText} and deals {damageText}{typeText}.",
+  "PF2E_NARRATIVE_FORGE.Chat.SimpleCriticalNarration": "{attacker} critically hits {target}{itemText} and deals {damageText}{typeText}.",
+
+  "PF2E_NARRATIVE_FORGE.DamageTypes.acid": "acid",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.bludgeoning": "bludgeoning",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.cold": "cold",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.electricity": "electricity",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.fire": "fire",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.force": "force",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.mental": "mental",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.piercing": "piercing",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.poison": "poison",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.slashing": "slashing",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.spirit": "spirit",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.vitality": "vitality",
+  "PF2E_NARRATIVE_FORGE.DamageTypes.void": "void"
+}
