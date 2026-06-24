@@ -66,5 +66,14 @@
   "PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.3": "Ein sauberer Treffer bringt Bewegung in die Frontlinie.",
   "PF2E_NARRATIVE_FORGE.Narration.Critical.1": "Der Treffer wirkt besonders verheerend.",
   "PF2E_NARRATIVE_FORGE.Narration.Critical.2": "Die Wirkung des Angriffs ist unübersehbar.",
-  "PF2E_NARRATIVE_FORGE.Narration.Critical.3": "Der Einschlag entfaltet außergewöhnliche Kraft."
+  "PF2E_NARRATIVE_FORGE.Narration.Critical.3": "Der Einschlag entfaltet außergewöhnliche Kraft.",
+  "PF2E_NARRATIVE_FORGE.Chat.TargetDiagnostic": "Zieldiagnose: Kategorie {category}; Traits: {traits}",
+  "PF2E_NARRATIVE_FORGE.Chat.NoTargetTraits": "keine Traits erkannt",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.undead": "Untoter",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.construct": "Konstrukt",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.ooze": "Schleim",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.plant": "Pflanze/Fungus",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.animal": "Tier/Bestie",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.humanoid": "Humanoider",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.unknown": "Unbekannt"
 }

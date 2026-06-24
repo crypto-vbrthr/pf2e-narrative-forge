@@ -1,5 +1,5 @@
 const MODULE_ID = "pf2e-narrative-forge";
-const MODULE_VERSION = "0.0.6";
+const MODULE_VERSION = "0.0.8";
 
 const DAMAGE_TYPE_LABELS = {
   acid: "PF2E_NARRATIVE_FORGE.DamageTypes.acid",
@@ -89,6 +89,17 @@ const CRITICAL_NARRATIONS = [
   "PF2E_NARRATIVE_FORGE.Narration.Critical.2",
   "PF2E_NARRATIVE_FORGE.Narration.Critical.3"
 ];
+
+const TARGET_CATEGORY_TRAITS = {
+  undead: ["undead"],
+  construct: ["construct"],
+  ooze: ["ooze"],
+  plant: ["plant", "fungus"],
+  animal: ["animal", "beast"],
+  elemental: ["elemental"],
+  humanoid: ["humanoid", "human", "elf", "dwarf", "gnome", "goblin", "halfling", "orc", "leshy", "catfolk", "ratfolk", "kobold"]
+};
+
 
 function isEnabled() {
   return game.settings.get(MODULE_ID, "enabled");
@@ -197,7 +208,171 @@ function getTargetName(message) {
     getMessageFlag(message, "flags.pf2e.target.name") ??
     getMessageFlag(message, "flags.pf2e.origin.target.name");
 
-  return targetName ?? localize("PF2E_NARRATIVE_FORGE.Chat.UnknownTarget");
+  if (targetName) return targetName;
+
+  const discoveredNames = extractNameCandidates({
+    contextTarget: getMessageFlag(message, "flags.pf2e.context.target"),
+    pf2eTarget: getMessageFlag(message, "flags.pf2e.target"),
+    originTarget: getMessageFlag(message, "flags.pf2e.origin.target")
+  });
+
+  return discoveredNames[0] ?? localize("PF2E_NARRATIVE_FORGE.Chat.UnknownTarget");
+}
+
+
+function normalizeTrait(value) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function getTraitArrayFromActor(actor) {
+  const traitSources = [
+    actor?.system?.traits?.value,
+    actor?.system?.traits?.traits?.value,
+    actor?.system?.details?.creatureType,
+    actor?.system?.details?.ancestry?.trait,
+    actor?.system?.details?.ancestry?.name,
+    actor?.system?.details?.class?.name
+  ];
+
+  const traits = new Set();
+  for (const source of traitSources) {
+    if (!source) continue;
+    const values = Array.isArray(source) ? source : source instanceof Set ? Array.from(source) : [source];
+    for (const value of values) {
+      const trait = normalizeTrait(value);
+      if (trait) traits.add(trait);
+    }
+  }
+
+  return Array.from(traits).sort();
+}
+
+function extractUuidCandidates(value, results = []) {
+  if (value === null || value === undefined) return results;
+
+  if (typeof value === "string") {
+    if (/^(Actor|Token|Scene)\./.test(value)) results.push(value);
+    return results;
+  }
+
+  if (Array.isArray(value)) {
+    for (const entry of value) extractUuidCandidates(entry, results);
+    return results;
+  }
+
+  if (typeof value === "object") {
+    for (const [key, entry] of Object.entries(value)) {
+      if (["uuid", "actor", "token", "actorUuid", "tokenUuid"].includes(key)) extractUuidCandidates(entry, results);
+      else if (typeof entry === "object") extractUuidCandidates(entry, results);
+    }
+  }
+
+  return results;
+}
+
+function extractNameCandidates(value, results = []) {
+  if (value === null || value === undefined) return results;
+
+  if (typeof value === "string") return results;
+
+  if (Array.isArray(value)) {
+    for (const entry of value) extractNameCandidates(entry, results);
+    return results;
+  }
+
+  if (typeof value === "object") {
+    for (const [key, entry] of Object.entries(value)) {
+      if (key === "name" && typeof entry === "string") results.push(entry);
+      else if (typeof entry === "object") extractNameCandidates(entry, results);
+    }
+  }
+
+  return results;
+}
+
+function resolveTargetActorFromFlags(message) {
+  const targetData = {
+    contextTarget: getMessageFlag(message, "flags.pf2e.context.target"),
+    pf2eTarget: getMessageFlag(message, "flags.pf2e.target"),
+    originTarget: getMessageFlag(message, "flags.pf2e.origin.target")
+  };
+
+  const explicitCandidates = [
+    getMessageFlag(message, "flags.pf2e.context.target.actor.uuid"),
+    getMessageFlag(message, "flags.pf2e.context.target.actor"),
+    getMessageFlag(message, "flags.pf2e.context.target.token.actor.uuid"),
+    getMessageFlag(message, "flags.pf2e.context.target.token.uuid"),
+    getMessageFlag(message, "flags.pf2e.context.target.uuid"),
+    getMessageFlag(message, "flags.pf2e.target.actor.uuid"),
+    getMessageFlag(message, "flags.pf2e.target.actor"),
+    getMessageFlag(message, "flags.pf2e.target.token.uuid"),
+    getMessageFlag(message, "flags.pf2e.origin.target.actor.uuid"),
+    getMessageFlag(message, "flags.pf2e.origin.target.actor"),
+    getMessageFlag(message, "flags.pf2e.origin.target.token.uuid")
+  ].filter(Boolean);
+
+  const discoveredCandidates = extractUuidCandidates(targetData);
+  const candidateUuids = Array.from(new Set([...explicitCandidates, ...discoveredCandidates]));
+
+  for (const uuid of candidateUuids) {
+    const document = resolveActorFromUuid(uuid);
+    const actor = document?.actor ?? document;
+    if (actor?.system) return actor;
+  }
+
+  return null;
+}
+
+function resolveTargetActorByName(message) {
+  const targetName = getTargetName(message);
+  if (!targetName || targetName === localize("PF2E_NARRATIVE_FORGE.Chat.UnknownTarget")) return null;
+
+  const activeTokens = canvas?.tokens?.placeables ?? [];
+  const token = activeTokens.find((candidate) => candidate?.name === targetName || candidate?.actor?.name === targetName);
+  if (token?.actor) return token.actor;
+
+  const actor = game.actors?.find?.((candidate) => candidate.name === targetName);
+  return actor ?? null;
+}
+
+function resolveTargetActorFromCurrentUserTargets() {
+  const targets = Array.from(game.user?.targets ?? []);
+  if (targets.length !== 1) return null;
+  return targets[0]?.actor ?? null;
+}
+
+function resolveTargetActor(message) {
+  return resolveTargetActorFromFlags(message) ?? resolveTargetActorByName(message) ?? resolveTargetActorFromCurrentUserTargets();
+}
+
+function detectTargetCategory(traits) {
+  const traitSet = new Set((traits ?? []).map(normalizeTrait));
+  for (const [category, categoryTraits] of Object.entries(TARGET_CATEGORY_TRAITS)) {
+    if (categoryTraits.some((trait) => traitSet.has(trait))) return category;
+  }
+  return "unknown";
+}
+
+function collectTargetDiagnostics(message) {
+  const actor = resolveTargetActor(message);
+  const traits = getTraitArrayFromActor(actor);
+  const category = detectTargetCategory(traits);
+
+  return {
+    name: getTargetName(message),
+    actorName: actor?.name ?? null,
+    actorType: actor?.type ?? null,
+    actorUuid: actor?.uuid ?? null,
+    traits,
+    category,
+    source: actor ? "resolved-actor-or-current-target" : "unresolved"
+  };
+}
+
+function getLocalizedTargetCategory(category) {
+  const key = `PF2E_NARRATIVE_FORGE.TargetCategories.${category}`;
+  const localized = localize(key);
+  return localized === key ? category : localized;
 }
 
 function getItemName(message) {
@@ -363,6 +538,7 @@ function collectNarrationData(message) {
     damageTypes,
     damageTypesLabel: getLocalizedDamageTypes(damageTypes),
     damageInstances: collectDamageInstances(message),
+    targetDiagnostics: collectTargetDiagnostics(message),
     diagnostics: {
       speaker: message.speaker,
       pf2e: getPf2eContextDiagnostics(message),
@@ -373,6 +549,7 @@ function collectNarrationData(message) {
   console.groupCollapsed(`${MODULE_ID} | Damage message data v${MODULE_VERSION}`);
   console.log("Extracted", data);
   console.log("PF2e diagnostics", data.diagnostics.pf2e);
+  console.log("Target diagnostics", data.targetDiagnostics);
   console.log("Roll diagnostics", data.diagnostics.rolls);
   console.log("ChatMessage", message);
   console.groupEnd();
@@ -414,7 +591,10 @@ async function createNarration(message) {
 
   await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor: message.actor }),
-    content: `<div class="pf2e-narrative-forge-card"><strong>${escapeHtml(localize("PF2E_NARRATIVE_FORGE.Chat.Title"))}</strong><p>${escapeHtml(text)}</p></div>`
+    content: `<div class="pf2e-narrative-forge-card"><strong>${escapeHtml(localize("PF2E_NARRATIVE_FORGE.Chat.Title"))}</strong><p>${escapeHtml(text)}</p><p class="pf2e-narrative-forge-diagnostic">${escapeHtml(format("PF2E_NARRATIVE_FORGE.Chat.TargetDiagnostic", {
+      category: getLocalizedTargetCategory(data.targetDiagnostics.category),
+      traits: data.targetDiagnostics.traits.length ? data.targetDiagnostics.traits.join(", ") : localize("PF2E_NARRATIVE_FORGE.Chat.NoTargetTraits")
+    }))}</p></div>`
   });
 }
 

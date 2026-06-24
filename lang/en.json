@@ -66,5 +66,14 @@
   "PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.3": "A clean hit stirs the front line into motion.",
   "PF2E_NARRATIVE_FORGE.Narration.Critical.1": "The hit feels especially devastating.",
   "PF2E_NARRATIVE_FORGE.Narration.Critical.2": "The attack’s impact is impossible to ignore.",
-  "PF2E_NARRATIVE_FORGE.Narration.Critical.3": "The impact releases exceptional force."
+  "PF2E_NARRATIVE_FORGE.Narration.Critical.3": "The impact releases exceptional force.",
+  "PF2E_NARRATIVE_FORGE.Chat.TargetDiagnostic": "Target diagnostic: category {category}; traits: {traits}",
+  "PF2E_NARRATIVE_FORGE.Chat.NoTargetTraits": "no traits detected",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.undead": "Undead",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.construct": "Construct",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.ooze": "Ooze",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.plant": "Plant/Fungus",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.animal": "Animal/Beast",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.humanoid": "Humanoid",
+  "PF2E_NARRATIVE_FORGE.TargetCategories.unknown": "Unknown"
 }

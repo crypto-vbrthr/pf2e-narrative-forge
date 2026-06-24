@@ -2,7 +2,7 @@
   "id": "pf2e-narrative-forge",
   "title": "PF2E Narrative Forge",
   "description": "Adds localized narrative tools for Pathfinder 2e combat chat messages.",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
