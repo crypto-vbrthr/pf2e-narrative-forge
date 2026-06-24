@@ -1,5 +1,5 @@
 const MODULE_ID = "pf2e-narrative-forge";
-const MODULE_VERSION = "0.0.4";
+const MODULE_VERSION = "0.0.6";
 
 const DAMAGE_TYPE_LABELS = {
   acid: "PF2E_NARRATIVE_FORGE.DamageTypes.acid",
@@ -16,6 +16,79 @@ const DAMAGE_TYPE_LABELS = {
   vitality: "PF2E_NARRATIVE_FORGE.DamageTypes.vitality",
   void: "PF2E_NARRATIVE_FORGE.DamageTypes.void"
 };
+
+const DAMAGE_NARRATIONS = {
+  slashing: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.slashing.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.slashing.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.slashing.3"
+  ],
+  piercing: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.piercing.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.piercing.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.piercing.3"
+  ],
+  bludgeoning: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.bludgeoning.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.bludgeoning.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.bludgeoning.3"
+  ],
+  fire: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.fire.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.fire.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.fire.3"
+  ],
+  cold: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.cold.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.cold.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.cold.3"
+  ],
+  electricity: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.electricity.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.electricity.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.electricity.3"
+  ],
+  acid: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.acid.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.acid.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.acid.3"
+  ],
+  force: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.force.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.force.2"
+  ],
+  mental: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.mental.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.mental.2"
+  ],
+  poison: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.poison.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.poison.2"
+  ],
+  spirit: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.spirit.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.spirit.2"
+  ],
+  vitality: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.vitality.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.vitality.2"
+  ],
+  void: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.void.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.void.2"
+  ],
+  fallback: [
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.3"
+  ]
+};
+
+const CRITICAL_NARRATIONS = [
+  "PF2E_NARRATIVE_FORGE.Narration.Critical.1",
+  "PF2E_NARRATIVE_FORGE.Narration.Critical.2",
+  "PF2E_NARRATIVE_FORGE.Narration.Critical.3"
+];
 
 function isEnabled() {
   return game.settings.get(MODULE_ID, "enabled");
@@ -77,12 +150,13 @@ function isPf2eDamageMessage(message, root = null) {
   }
 
   const content = String(message.content ?? "");
-  const hasDamageRollClass = content.includes("damage-roll") || root?.querySelector?.(".damage-roll");
-  const hasDamageApplication =
+  const hasDamageRollClass = content.includes("damage-roll") || Boolean(root?.querySelector?.(".damage-roll"));
+  const hasDamageApplication = Boolean(
     root?.querySelector?.("[data-action='applyDamage']") ||
     root?.querySelector?.("[data-action='apply-damage']") ||
     content.includes("data-action=\"applyDamage\"") ||
-    content.includes("data-action=\"apply-damage\"");
+    content.includes("data-action=\"apply-damage\"")
+  );
 
   if (hasDamageRollClass && hasDamageApplication) {
     console.debug(`${MODULE_ID} | Accepted damage message via rendered damage card fallback.`, message);
@@ -93,14 +167,26 @@ function isPf2eDamageMessage(message, root = null) {
     contextType,
     messageType: message.type,
     hasDamageRollClass: Boolean(hasDamageRollClass),
-    hasDamageApplication: Boolean(hasDamageApplication),
+    hasDamageApplication,
     message
   });
   return false;
 }
 
+function resolveActorFromUuid(uuid) {
+  if (!uuid || typeof fromUuidSync !== "function") return null;
+  try {
+    const document = fromUuidSync(uuid);
+    return document?.actor ?? document;
+  } catch (error) {
+    console.debug(`${MODULE_ID} | Could not resolve UUID.`, uuid, error);
+    return null;
+  }
+}
+
 function getActorName(message) {
-  const actor = message.actor ?? game.actors?.get(message.speaker?.actor);
+  const originActor = resolveActorFromUuid(getMessageFlag(message, "flags.pf2e.origin.actor"));
+  const actor = originActor ?? message.actor ?? game.actors?.get(message.speaker?.actor);
   return actor?.name ?? localize("PF2E_NARRATIVE_FORGE.Chat.UnknownActor");
 }
 
@@ -118,6 +204,7 @@ function getItemName(message) {
   return getMessageFlag(message, "flags.pf2e.context.item.name") ??
     getMessageFlag(message, "flags.pf2e.origin.item.name") ??
     getMessageFlag(message, "flags.pf2e.item.name") ??
+    getMessageFlag(message, "flags.pf2e.origin.item")?.name ??
     "";
 }
 
@@ -139,7 +226,8 @@ function getDamageTypes(message) {
     flags: message.flags?.pf2e,
     rollOptions: getMessageFlag(message, "flags.pf2e.context.options"),
     formulae: message.rolls?.map((roll) => roll?.formula),
-    flavors: message.rolls?.map((roll) => roll?.options?.flavor ?? roll?.flavor)
+    flavors: message.rolls?.map((roll) => roll?.options?.flavor ?? roll?.flavor),
+    instances: getMessageFlag(message, "flags.pf2e.context.damage.instances")
   });
 
   const found = new Set();
@@ -171,7 +259,8 @@ function getOutcome(message) {
     entry.includes("criticalsuccess") ||
     entry.includes("critical-success") ||
     entry.includes("degree-of-success:critical") ||
-    entry.includes("outcome:critical")
+    entry.includes("outcome:critical") ||
+    entry === "critical"
   ));
 
   if (isCritical) return "critical";
@@ -185,6 +274,84 @@ function getLocalizedDamageTypes(damageTypes) {
     .join(", ");
 }
 
+function simplifyRollTerms(term) {
+  if (!term) return null;
+  return {
+    class: term.constructor?.name ?? null,
+    formula: term.formula ?? null,
+    total: term.total ?? null,
+    number: term.number ?? null,
+    faces: term.faces ?? null,
+    modifiers: term.modifiers ?? null,
+    options: term.options ?? null,
+    flavor: term.flavor ?? null
+  };
+}
+
+function getRollDiagnostics(message) {
+  return (message.rolls ?? []).map((roll, index) => ({
+    index,
+    class: roll?.constructor?.name ?? null,
+    formula: roll?.formula ?? null,
+    total: roll?.total ?? null,
+    options: roll?.options ?? null,
+    flavor: roll?.options?.flavor ?? roll?.flavor ?? null,
+    domains: roll?.options?.domains ?? null,
+    dice: roll?.dice?.map((die) => ({
+      class: die.constructor?.name ?? null,
+      formula: die.formula ?? null,
+      total: die.total ?? null,
+      number: die.number ?? null,
+      faces: die.faces ?? null,
+      modifiers: die.modifiers ?? null,
+      options: die.options ?? null,
+      flavor: die.flavor ?? null
+    })) ?? [],
+    terms: roll?.terms?.map(simplifyRollTerms) ?? []
+  }));
+}
+
+function getPf2eContextDiagnostics(message) {
+  return {
+    context: getMessageFlag(message, "flags.pf2e.context") ?? null,
+    origin: getMessageFlag(message, "flags.pf2e.origin") ?? null,
+    target: getMessageFlag(message, "flags.pf2e.target") ?? null,
+    damageRoll: getMessageFlag(message, "flags.pf2e.damageRoll") ?? null,
+    modifiers: getMessageFlag(message, "flags.pf2e.modifiers") ?? null
+  };
+}
+
+function collectDamageInstances(message) {
+  const contextDamage = getMessageFlag(message, "flags.pf2e.context.damage") ?? {};
+  const candidates = [
+    contextDamage.instances,
+    contextDamage.rolls,
+    getMessageFlag(message, "flags.pf2e.damageRoll.instances"),
+    getMessageFlag(message, "flags.pf2e.damageRoll.rolls")
+  ];
+
+  const instances = [];
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const entries = Array.isArray(candidate) ? candidate : Object.values(candidate);
+    for (const entry of entries) {
+      if (!entry || typeof entry !== "object") continue;
+      instances.push({
+        type: entry.type ?? entry.damageType ?? entry.damageTypeId ?? entry.category ?? null,
+        category: entry.category ?? null,
+        formula: entry.formula ?? entry.value ?? null,
+        total: entry.total ?? entry.damage ?? null,
+        precision: entry.precision ?? null,
+        persistent: entry.persistent ?? null,
+        traits: entry.traits ?? entry.options ?? null,
+        label: entry.label ?? entry.name ?? null
+      });
+    }
+  }
+
+  return instances;
+}
+
 function collectNarrationData(message) {
   const damageTypes = getDamageTypes(message);
   const data = {
@@ -194,36 +361,56 @@ function collectNarrationData(message) {
     outcome: getOutcome(message),
     damage: getDamageTotal(message),
     damageTypes,
-    damageTypesLabel: getLocalizedDamageTypes(damageTypes)
+    damageTypesLabel: getLocalizedDamageTypes(damageTypes),
+    damageInstances: collectDamageInstances(message),
+    diagnostics: {
+      speaker: message.speaker,
+      pf2e: getPf2eContextDiagnostics(message),
+      rolls: getRollDiagnostics(message)
+    }
   };
 
-  console.log(`${MODULE_ID} | Damage message data`, data, message);
+  console.groupCollapsed(`${MODULE_ID} | Damage message data v${MODULE_VERSION}`);
+  console.log("Extracted", data);
+  console.log("PF2e diagnostics", data.diagnostics.pf2e);
+  console.log("Roll diagnostics", data.diagnostics.rolls);
+  console.log("ChatMessage", message);
+  console.groupEnd();
+
   return data;
 }
 
-function createSimpleNarration(data) {
-  const hasDamage = Number.isFinite(Number(data.damage));
-  const hasDamageTypes = data.damageTypesLabel.length > 0;
-  const itemText = data.item ? format("PF2E_NARRATIVE_FORGE.Chat.WithItem", { item: data.item }) : "";
-  const damageText = hasDamage ? format("PF2E_NARRATIVE_FORGE.Chat.DamageText", { damage: data.damage }) : localize("PF2E_NARRATIVE_FORGE.Chat.DamageTextUnknown");
-  const typeText = hasDamageTypes ? format("PF2E_NARRATIVE_FORGE.Chat.DamageTypeText", { damageTypes: data.damageTypesLabel }) : "";
-
-  const key = data.outcome === "critical"
-    ? "PF2E_NARRATIVE_FORGE.Chat.SimpleCriticalNarration"
-    : "PF2E_NARRATIVE_FORGE.Chat.SimpleHitNarration";
-
-  return format(key, {
-    attacker: data.attacker,
-    target: data.target,
-    itemText,
-    damageText,
-    typeText
-  });
+function chooseRandom(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return null;
+  return entries[Math.floor(Math.random() * entries.length)];
 }
 
+function choosePrimaryDamageType(data) {
+  const instanceTypes = data.damageInstances
+    .map((instance) => String(instance.type ?? "").toLowerCase())
+    .filter((type) => type in DAMAGE_NARRATIONS);
+
+  if (instanceTypes.length) return instanceTypes[0];
+
+  const detectedType = data.damageTypes.find((type) => type in DAMAGE_NARRATIONS);
+  return detectedType ?? "fallback";
+}
+
+function createNarrativeText(data) {
+  const damageType = choosePrimaryDamageType(data);
+  const narrationKey = chooseRandom(DAMAGE_NARRATIONS[damageType] ?? DAMAGE_NARRATIONS.fallback);
+  const criticalKey = data.outcome === "critical" ? chooseRandom(CRITICAL_NARRATIONS) : null;
+
+  const sentences = [
+    narrationKey ? localize(narrationKey) : localize("PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.1"),
+    criticalKey ? localize(criticalKey) : null
+  ].filter(Boolean);
+
+  return sentences.join(" ");
+}
 async function createNarration(message) {
   const data = collectNarrationData(message);
-  const text = createSimpleNarration(data);
+  const text = createNarrativeText(data);
 
   await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor: message.actor }),
