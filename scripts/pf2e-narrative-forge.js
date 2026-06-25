@@ -1,5 +1,5 @@
 const MODULE_ID = "pf2e-narrative-forge";
-const MODULE_VERSION = "0.0.8";
+const MODULE_VERSION = "0.1.0";
 
 const DAMAGE_TYPE_LABELS = {
   acid: "PF2E_NARRATIVE_FORGE.DamageTypes.acid",
@@ -90,6 +90,88 @@ const CRITICAL_NARRATIONS = [
   "PF2E_NARRATIVE_FORGE.Narration.Critical.3"
 ];
 
+const TARGET_NARRATIONS = {
+  undead: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.undead.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.undead.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.undead.3"
+  ],
+  construct: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.construct.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.construct.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.construct.3"
+  ],
+  ooze: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.ooze.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.ooze.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.ooze.3"
+  ],
+  plant: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.plant.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.plant.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.plant.3"
+  ],
+  animal: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.animal.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.animal.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.animal.3"
+  ],
+  elemental: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.elemental.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.elemental.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.elemental.3"
+  ],
+  humanoid: [
+    "PF2E_NARRATIVE_FORGE.Narration.Target.humanoid.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.humanoid.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Target.humanoid.3"
+  ]
+};
+
+
+const COMBINATION_NARRATIONS = {
+  "slashing-undead": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.slashingUndead.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.slashingUndead.2"
+  ],
+  "bludgeoning-undead": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.bludgeoningUndead.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.bludgeoningUndead.2"
+  ],
+  "fire-undead": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.fireUndead.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.fireUndead.2"
+  ],
+  "bludgeoning-construct": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.bludgeoningConstruct.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.bludgeoningConstruct.2"
+  ],
+  "electricity-construct": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.electricityConstruct.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.electricityConstruct.2"
+  ],
+  "acid-ooze": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.acidOoze.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.acidOoze.2"
+  ],
+  "fire-elemental": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.fireElemental.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.fireElemental.2"
+  ],
+  "cold-elemental": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.coldElemental.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.coldElemental.2"
+  ],
+  "slashing-plant": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.slashingPlant.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.slashingPlant.2"
+  ],
+  "fire-plant": [
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.firePlant.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Combination.firePlant.2"
+  ]
+};
+
 const TARGET_CATEGORY_TRAITS = {
   undead: ["undead"],
   construct: ["construct"],
@@ -103,6 +185,22 @@ const TARGET_CATEGORY_TRAITS = {
 
 function isEnabled() {
   return game.settings.get(MODULE_ID, "enabled");
+}
+
+function getAutoMode() {
+  return game.settings.get(MODULE_ID, "autoMode");
+}
+
+function getNarrationStyle() {
+  return game.settings.get(MODULE_ID, "narrationStyle");
+}
+
+function isDebugEnabled() {
+  return game.settings.get(MODULE_ID, "debug");
+}
+
+function debugLog(...args) {
+  if (isDebugEnabled()) console.debug(`${MODULE_ID} |`, ...args);
 }
 
 function getMessageFlag(message, path) {
@@ -156,7 +254,7 @@ function isPf2eDamageMessage(message, root = null) {
   ]);
 
   if (acceptedContextTypes.has(contextType)) {
-    console.debug(`${MODULE_ID} | Accepted damage message via PF2e context type: ${contextType}`, message);
+    debugLog(`Accepted damage message via PF2e context type: ${contextType}`, message);
     return true;
   }
 
@@ -170,11 +268,11 @@ function isPf2eDamageMessage(message, root = null) {
   );
 
   if (hasDamageRollClass && hasDamageApplication) {
-    console.debug(`${MODULE_ID} | Accepted damage message via rendered damage card fallback.`, message);
+    debugLog("Accepted damage message via rendered damage card fallback.", message);
     return true;
   }
 
-  console.debug(`${MODULE_ID} | Ignored non-damage chat message.`, {
+  debugLog("Ignored non-damage chat message.", {
     contextType,
     messageType: message.type,
     hasDamageRollClass: Boolean(hasDamageRollClass),
@@ -190,7 +288,7 @@ function resolveActorFromUuid(uuid) {
     const document = fromUuidSync(uuid);
     return document?.actor ?? document;
   } catch (error) {
-    console.debug(`${MODULE_ID} | Could not resolve UUID.`, uuid, error);
+    debugLog("Could not resolve UUID.", uuid, error);
     return null;
   }
 }
@@ -546,13 +644,15 @@ function collectNarrationData(message) {
     }
   };
 
-  console.groupCollapsed(`${MODULE_ID} | Damage message data v${MODULE_VERSION}`);
-  console.log("Extracted", data);
-  console.log("PF2e diagnostics", data.diagnostics.pf2e);
-  console.log("Target diagnostics", data.targetDiagnostics);
-  console.log("Roll diagnostics", data.diagnostics.rolls);
-  console.log("ChatMessage", message);
-  console.groupEnd();
+  if (isDebugEnabled()) {
+    console.groupCollapsed(`${MODULE_ID} | Damage message data v${MODULE_VERSION}`);
+    console.log("Extracted", data);
+    console.log("PF2e diagnostics", data.diagnostics.pf2e);
+    console.log("Target diagnostics", data.targetDiagnostics);
+    console.log("Roll diagnostics", data.diagnostics.rolls);
+    console.log("ChatMessage", message);
+    console.groupEnd();
+  }
 
   return data;
 }
@@ -574,27 +674,67 @@ function choosePrimaryDamageType(data) {
 }
 
 function createNarrativeText(data) {
+  const style = getNarrationStyle();
   const damageType = choosePrimaryDamageType(data);
-  const narrationKey = chooseRandom(DAMAGE_NARRATIONS[damageType] ?? DAMAGE_NARRATIONS.fallback);
+  const targetCategory = data.targetDiagnostics?.category ?? "unknown";
+  const combinationKey = `${damageType}-${targetCategory}`;
+  const combinationNarrationKey = chooseRandom(COMBINATION_NARRATIONS[combinationKey]);
+
+  const narrationKey = combinationNarrationKey ?? chooseRandom(DAMAGE_NARRATIONS[damageType] ?? DAMAGE_NARRATIONS.fallback);
+  const targetKey = combinationNarrationKey ? null : targetCategory !== "unknown" ? chooseRandom(TARGET_NARRATIONS[targetCategory]) : null;
   const criticalKey = data.outcome === "critical" ? chooseRandom(CRITICAL_NARRATIONS) : null;
+  const epicKey = style === "epic" ? chooseRandom([
+    "PF2E_NARRATIVE_FORGE.Narration.Epic.1",
+    "PF2E_NARRATIVE_FORGE.Narration.Epic.2",
+    "PF2E_NARRATIVE_FORGE.Narration.Epic.3"
+  ]) : null;
 
-  const sentences = [
-    narrationKey ? localize(narrationKey) : localize("PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.1"),
-    criticalKey ? localize(criticalKey) : null
-  ].filter(Boolean);
+  const sentences = [];
+  sentences.push(narrationKey ? localize(narrationKey) : localize("PF2E_NARRATIVE_FORGE.Narration.Damage.fallback.1"));
 
-  return sentences.join(" ");
+  if (style !== "short") {
+    if (targetKey) sentences.push(localize(targetKey));
+    if (criticalKey) sentences.push(localize(criticalKey));
+  } else if (criticalKey) {
+    sentences.push(localize(criticalKey));
+  }
+
+  if (epicKey) sentences.push(localize(epicKey));
+
+  debugLog("Narration choice", {
+    style,
+    damageType,
+    targetCategory,
+    combinationKey,
+    usedCombination: Boolean(combinationNarrationKey),
+    narrationKey,
+    targetKey,
+    criticalKey,
+    epicKey
+  });
+
+  return sentences.filter(Boolean).join(" ");
 }
+
+function shouldAutoNarrate(message) {
+  if (!isEnabled()) return false;
+  const autoMode = getAutoMode();
+  if (autoMode === "manual") return false;
+  if (!isPf2eDamageMessage(message, null)) return false;
+
+  const data = collectNarrationData(message);
+  if (autoMode === "critical") return data.outcome === "critical";
+  if (autoMode === "all") return true;
+  return false;
+}
+
 async function createNarration(message) {
   const data = collectNarrationData(message);
   const text = createNarrativeText(data);
 
   await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor: message.actor }),
-    content: `<div class="pf2e-narrative-forge-card"><strong>${escapeHtml(localize("PF2E_NARRATIVE_FORGE.Chat.Title"))}</strong><p>${escapeHtml(text)}</p><p class="pf2e-narrative-forge-diagnostic">${escapeHtml(format("PF2E_NARRATIVE_FORGE.Chat.TargetDiagnostic", {
-      category: getLocalizedTargetCategory(data.targetDiagnostics.category),
-      traits: data.targetDiagnostics.traits.length ? data.targetDiagnostics.traits.join(", ") : localize("PF2E_NARRATIVE_FORGE.Chat.NoTargetTraits")
-    }))}</p></div>`
+    content: `<div class="pf2e-narrative-forge-card"><strong>${escapeHtml(localize("PF2E_NARRATIVE_FORGE.Chat.Title"))}</strong><p>${escapeHtml(text)}</p></div>`
   });
 }
 
@@ -629,6 +769,43 @@ Hooks.once("init", () => {
     type: Boolean,
     default: true
   });
+
+  game.settings.register(MODULE_ID, "autoMode", {
+    name: localize("PF2E_NARRATIVE_FORGE.Settings.AutoMode.Name"),
+    hint: localize("PF2E_NARRATIVE_FORGE.Settings.AutoMode.Hint"),
+    scope: "world",
+    config: true,
+    type: String,
+    default: "manual",
+    choices: {
+      manual: localize("PF2E_NARRATIVE_FORGE.Settings.AutoMode.Choices.manual"),
+      critical: localize("PF2E_NARRATIVE_FORGE.Settings.AutoMode.Choices.critical"),
+      all: localize("PF2E_NARRATIVE_FORGE.Settings.AutoMode.Choices.all")
+    }
+  });
+
+  game.settings.register(MODULE_ID, "narrationStyle", {
+    name: localize("PF2E_NARRATIVE_FORGE.Settings.NarrationStyle.Name"),
+    hint: localize("PF2E_NARRATIVE_FORGE.Settings.NarrationStyle.Hint"),
+    scope: "world",
+    config: true,
+    type: String,
+    default: "normal",
+    choices: {
+      short: localize("PF2E_NARRATIVE_FORGE.Settings.NarrationStyle.Choices.short"),
+      normal: localize("PF2E_NARRATIVE_FORGE.Settings.NarrationStyle.Choices.normal"),
+      epic: localize("PF2E_NARRATIVE_FORGE.Settings.NarrationStyle.Choices.epic")
+    }
+  });
+
+  game.settings.register(MODULE_ID, "debug", {
+    name: localize("PF2E_NARRATIVE_FORGE.Settings.Debug.Name"),
+    hint: localize("PF2E_NARRATIVE_FORGE.Settings.Debug.Hint"),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
@@ -637,6 +814,14 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
 Hooks.on("renderChatMessage", (message, html) => {
   injectNarrationButton(message, html);
+});
+
+Hooks.on("createChatMessage", async (message) => {
+  try {
+    if (shouldAutoNarrate(message)) await createNarration(message);
+  } catch (error) {
+    console.error(`${MODULE_ID} | Automatic narration failed.`, error);
+  }
 });
 
 Hooks.once("ready", () => {
