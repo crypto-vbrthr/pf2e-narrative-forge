@@ -20,37 +20,100 @@ export const CREATURES = {
   "humanoid": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.humanoid.12"
   ],
   "animal": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.animal.12"
   ],
   "undead": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.undead.12"
   ],
   "construct": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.construct.12"
   ],
   "plant": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.plant.12"
   ],
   "ooze": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.ooze.12"
   ],
   "elemental": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.1",
     "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.2",
-    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.3"
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.3",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.4",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.5",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.6",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.7",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.8",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.9",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.10",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.11",
+    "PF2E_NARRATIVE_FORGE.Narration.Creature.elemental.12"
   ],
   "dragon": [
     "PF2E_NARRATIVE_FORGE.Narration.Creature.dragon.1",
