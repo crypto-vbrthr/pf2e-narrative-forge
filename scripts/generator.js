@@ -7,25 +7,32 @@ import { getSetting } from "./settings.js";
 
 export function generateNarration(data) {
   const style = getSetting("style") ?? "normal";
+  const context = {
+    ...data,
+    style
+  };
+
   const lines = [];
   const sources = [];
 
   const combinationKey = `${data.damageType}-${data.creatureType}`;
-  const combination = pickLocalized(COMBINATIONS[combinationKey], `combination:${combinationKey}`);
+  const combination = pickLocalized(COMBINATIONS[combinationKey], context, `combination:${combinationKey}`);
 
   if (combination) {
     lines.push(combination);
     sources.push(`combination:${combinationKey}`);
   } else {
     const damageLibrary = DAMAGE[data.damageType] ?? DAMAGE.fallback;
-    const damage = pickLocalized(damageLibrary, `damage:${data.damageType}`);
+    const damage = pickLocalized(damageLibrary, context, `damage:${data.damageType}`);
+
     if (damage) {
       lines.push(damage);
       sources.push(`damage:${data.damageType}`);
     }
 
     if (style !== "short") {
-      const creature = pickLocalized(CREATURES[data.creatureType], `creature:${data.creatureType}`);
+      const creature = pickLocalized(CREATURES[data.creatureType], context, `creature:${data.creatureType}`);
+
       if (creature) {
         lines.push(creature);
         sources.push(`creature:${data.creatureType}`);
@@ -34,7 +41,8 @@ export function generateNarration(data) {
   }
 
   if (data.critical && style !== "short") {
-    const critical = pickLocalized(CRITICAL, "critical");
+    const critical = pickLocalized(CRITICAL, context, "critical");
+
     if (critical) {
       lines.push(critical);
       sources.push("critical");
@@ -42,7 +50,8 @@ export function generateNarration(data) {
   }
 
   if (style === "epic" && !data.critical) {
-    const flourish = pickLocalized(FLOURISH, "flourish");
+    const flourish = pickLocalized(FLOURISH, context, "flourish");
+
     if (flourish) {
       lines.push(flourish);
       sources.push("flourish");
@@ -50,10 +59,11 @@ export function generateNarration(data) {
   }
 
   if (getSetting("debug")) {
-    console.log("pf2e-narrative-forge | Generator sources", {
+    console.log("pf2e-narrative-forge | Generator", {
       damageType: data.damageType,
       creatureType: data.creatureType,
       critical: data.critical,
+      style,
       sources
     });
   }
