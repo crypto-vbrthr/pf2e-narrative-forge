@@ -11,45 +11,94 @@ export function localizeEntry(entry) {
 }
 
 export function pickNarration(library, context = {}, libraryId = "default") {
-  if (!Array.isArray(library) || library.length === 0) return null;
+  if (!Array.isArray(library) || library.length === 0) {
+    debugSelection({
+      libraryId,
+      reason: "empty-library",
+      rawEntries: Array.isArray(library) ? library.length : null
+    });
+    return null;
+  }
 
-  const normalized = library
-    .map((entry) => typeof entry === "string"
-      ? { id: entry, key: entry, weight: 1, tags: [], conditions: {} }
-      : { weight: 1, tags: [], conditions: {}, ...entry }
-    )
-    .map(localizeEntry)
-    .filter(Boolean);
+  const rawEntries = library.map((entry, index) => normalizeEntry(entry, index));
+  const localized = rawEntries.map(localizeEntry).filter(Boolean);
+  const missingLocalization = rawEntries
+    .filter((entry) => !localizeEntry(entry))
+    .map((entry) => ({ id: entry.id, key: entry.key }));
 
-  if (normalized.length === 0) return null;
+  if (localized.length === 0) {
+    debugSelection({
+      libraryId,
+      reason: "no-localized-entries",
+      rawEntries: rawEntries.length,
+      missingLocalization
+    });
+    return null;
+  }
 
-  const afterConditions = normalized.filter((entry) => matchesConditions(entry.conditions, context));
-  const conditionPool = afterConditions.length > 0 ? afterConditions : normalized;
+  const conditionMatches = localized.filter((entry) => matchesConditions(entry.conditions, context));
+  const conditionPool = conditionMatches.length > 0 ? conditionMatches : localized;
 
   const historyLength = Math.max(0, Number(getSetting("variationHistoryLength") ?? 5));
-  const recent = selectionHistory.get(libraryId) ?? [];
-  let afterHistory = conditionPool.filter((entry) => !recent.includes(entry.id));
+  const historyBefore = [...(selectionHistory.get(libraryId) ?? [])];
 
+  let afterHistory = conditionPool.filter((entry) => !historyBefore.includes(entry.id));
+  const historyFilteredIds = conditionPool
+    .filter((entry) => historyBefore.includes(entry.id))
+    .map((entry) => entry.id);
+
+  let historyFallbackUsed = false;
   if (afterHistory.length === 0) {
     afterHistory = conditionPool;
+    historyFallbackUsed = true;
   }
 
   const selected = pickWeighted(afterHistory);
-  if (!selected) return null;
+  if (!selected) {
+    debugSelection({
+      libraryId,
+      reason: "no-selected-entry",
+      rawEntries: rawEntries.length,
+      localized: localized.length,
+      conditionPool: conditionPool.length,
+      afterHistory: afterHistory.length
+    });
+    return null;
+  }
 
   remember(libraryId, selected.id, historyLength);
+  const historyAfter = [...(selectionHistory.get(libraryId) ?? [])];
 
   debugSelection({
     libraryId,
-    entries: normalized.length,
-    afterConditions: conditionPool.length,
-    recent,
+    rawEntries: rawEntries.length,
+    localized: localized.length,
+    missingLocalization,
+    contextSnapshot: {
+      damageType: context.damageType,
+      creatureType: context.creatureType,
+      critical: context.critical,
+      style: context.style
+    },
+    conditionMatches: conditionMatches.length,
+    conditionFallbackUsed: conditionMatches.length === 0,
+    historyLength,
+    historyBefore,
+    historyFilteredIds,
     afterHistory: afterHistory.length,
+    historyFallbackUsed,
+    candidateIds: afterHistory.map((entry) => entry.id),
     weightedPool: afterHistory.reduce((sum, entry) => sum + Math.max(1, Number(entry.weight ?? 1)), 0),
-    selected: selected.id,
-    weight: selected.weight ?? 1,
-    tags: selected.tags ?? [],
-    conditions: selected.conditions ?? {}
+    selected: {
+      id: selected.id,
+      key: selected.key,
+      weight: selected.weight ?? 1,
+      tags: selected.tags ?? [],
+      conditions: selected.conditions ?? {},
+      text: selected.text
+    },
+    historyAfter,
+    historyMap: dumpHistory()
   });
 
   return selected;
@@ -57,6 +106,26 @@ export function pickNarration(library, context = {}, libraryId = "default") {
 
 export function pickLocalized(library, context = {}, libraryId = "default") {
   return pickNarration(library, context, libraryId)?.text ?? null;
+}
+
+function normalizeEntry(entry, index) {
+  if (typeof entry === "string") {
+    return {
+      id: entry,
+      key: entry,
+      weight: 1,
+      tags: [],
+      conditions: {}
+    };
+  }
+
+  return {
+    id: entry?.id ?? `entry_${index}`,
+    key: entry?.key ?? entry?.id ?? `entry_${index}`,
+    weight: entry?.weight ?? 1,
+    tags: entry?.tags ?? [],
+    conditions: entry?.conditions ?? {}
+  };
 }
 
 function matchesConditions(conditions = {}, context = {}) {
@@ -95,7 +164,8 @@ function pickWeighted(entries) {
 
 function remember(libraryId, id, maxLength) {
   if (maxLength <= 0) return;
-  const recent = selectionHistory.get(libraryId) ?? [];
+
+  const recent = [...(selectionHistory.get(libraryId) ?? [])];
   recent.push(id);
 
   while (recent.length > maxLength) {
@@ -105,7 +175,15 @@ function remember(libraryId, id, maxLength) {
   selectionHistory.set(libraryId, recent);
 }
 
+function dumpHistory() {
+  return Object.fromEntries(
+    [...selectionHistory.entries()].map(([key, value]) => [key, [...value]])
+  );
+}
+
 function debugSelection(payload) {
   if (!getSetting("debug")) return;
-  console.log(`${MODULE_ID} | Selector`, payload);
+  console.groupCollapsed(`${MODULE_ID} | Selector | ${payload.libraryId ?? "unknown"}`);
+  console.log(payload);
+  console.groupEnd();
 }
