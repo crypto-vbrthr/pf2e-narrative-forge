@@ -13,69 +13,111 @@ const FREQUENCY_THRESHOLDS = {
 };
 
 export async function maybeCreateDirectorNote(context) {
-  if (!getSetting("directorEnabled")) {
-    debugDirector("Skipped", { reason: "disabled" });
-    return;
-  }
+  console.groupCollapsed(`${MODULE_ID} | Director Engine | START`);
+  console.log("[00] Incoming context", context);
 
-  const frequency = getSetting("directorFrequency") ?? "normal";
-  const threshold = FREQUENCY_THRESHOLDS[frequency] ?? 50;
-  const roll = Math.floor(Math.random() * 100) + 1;
+  try {
+    const enabled = getSetting("directorEnabled");
+    const outputMode = getSetting("directorOutputMode") ?? "gmBlind";
+    const frequency = getSetting("directorFrequency") ?? "normal";
+    const threshold = FREQUENCY_THRESHOLDS[frequency] ?? 50;
+    const roll = Math.floor(Math.random() * 100) + 1;
+    const passed = roll <= threshold;
 
-  if (roll > threshold) {
-    debugDirector("Skipped", {
-      reason: "frequency",
+    console.log("[01] Settings", {
+      directorEnabled: enabled,
+      directorOutputMode: outputMode,
+      directorFrequency: frequency
+    });
+
+    if (!enabled) {
+      console.warn("EXIT: Disabled");
+      return;
+    }
+
+    console.log("[02] Frequency Check", {
       frequency,
       threshold,
-      roll
+      roll,
+      passed
     });
-    return;
-  }
 
-  const creatureType = context.creatureType ?? "humanoid";
-  const library = DIRECTOR_NOTES[creatureType] ?? DIRECTOR_NOTES.humanoid;
-
-  const note = pickNarration(
-    library,
-    context,
-    `director:${creatureType}`
-  );
-
-  if (!note) {
-    debugDirector("Skipped", {
-      reason: "no-note",
-      creatureType
-    });
-    return;
-  }
-
-  const outputMode = getSetting("directorOutputMode") ?? "gmBlind";
-  const content = renderDirectorNote({
-    note,
-    context,
-    frequency,
-    outputMode
-  });
-
-  debugDirector("Generated", {
-    creatureType,
-    frequency,
-    threshold,
-    roll,
-    outputMode,
-    selected: {
-      id: note.id,
-      key: note.key,
-      text: note.text
+    if (!passed) {
+      console.warn("EXIT: Frequency");
+      return;
     }
-  });
 
-  await sendDirectorNote(content, outputMode);
-}
+    const creatureType = context?.creatureType ?? "humanoid";
+    const libraryId = `director:${creatureType}`;
+    const library = DIRECTOR_NOTES?.[creatureType] ?? DIRECTOR_NOTES?.humanoid;
 
-function debugDirector(label, payload) {
-  if (!getSetting("debug")) return;
-  console.groupCollapsed(`${MODULE_ID} | Director | ${label}`);
-  console.log(payload);
-  console.groupEnd();
+    console.log("[03] Context Summary", {
+      creatureType,
+      damageType: context?.damageType,
+      critical: context?.critical,
+      damage: context?.damage,
+      targetTraits: context?.targetTraits
+    });
+
+    console.log("[04] Library", {
+      requestedLibrary: libraryId,
+      usingFallback: !DIRECTOR_NOTES?.[creatureType],
+      entries: Array.isArray(library) ? library.length : null,
+      entryIds: Array.isArray(library) ? library.map((entry) => entry.id ?? entry.key ?? entry) : []
+    });
+
+    if (!Array.isArray(library) || library.length === 0) {
+      console.warn("EXIT: No Library");
+      return;
+    }
+
+    console.log("[05] Calling pickNarration()");
+    const note = pickNarration(
+      library,
+      context,
+      libraryId
+    );
+
+    console.log("[05] Selected Note", note);
+
+    if (!note) {
+      console.warn("EXIT: No Note");
+      return;
+    }
+
+    console.log("[06] Rendering Director Note...");
+    let content;
+    try {
+      content = renderDirectorNote({
+        note,
+        context,
+        frequency,
+        outputMode
+      });
+    } catch (error) {
+      console.error("EXIT: Renderer", error);
+      return;
+    }
+
+    console.log("[06] Rendered HTML", {
+      length: content?.length ?? 0,
+      preview: String(content ?? "").slice(0, 500)
+    });
+
+    console.log("[07] Creating ChatMessage...", {
+      outputMode
+    });
+
+    try {
+      const message = await sendDirectorNote(content, outputMode);
+      console.log("[07] ChatMessage created", message);
+      console.log("EXIT: Success");
+    } catch (error) {
+      console.error("EXIT: ChatMessage", error);
+    }
+  } catch (error) {
+    console.error("EXIT: Unexpected Error", error);
+  } finally {
+    console.groupEnd();
+  }
 }
