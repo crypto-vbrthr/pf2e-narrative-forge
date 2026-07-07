@@ -4,6 +4,7 @@ import { DAMAGE } from "./content/damage.js";
 import { CREATURES } from "./content/creatures.js";
 import { COMBINATIONS } from "./content/combinations.js";
 import { CRITICAL, FLOURISH } from "./content/critical.js";
+import { DIRECTOR_NOTES } from "./content/director/index.js";
 
 export function validateContentLibraries() {
   if (!getSetting("debug")) return;
@@ -12,6 +13,7 @@ export function validateContentLibraries() {
     ...prefixLibraries("damage", DAMAGE),
     ...prefixLibraries("creature", CREATURES),
     ...prefixLibraries("combination", COMBINATIONS),
+    ...prefixLibraries("director", DIRECTOR_NOTES),
     critical: CRITICAL,
     flourish: FLOURISH
   };

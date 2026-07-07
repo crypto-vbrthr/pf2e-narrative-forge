@@ -1,2 +1,2 @@
 export const MODULE_ID = "pf2e-narrative-forge";
-export const MODULE_VERSION = "0.2.3d";
+export const MODULE_VERSION = "0.3.0a-fix1";

@@ -3,6 +3,7 @@ import { getSetting } from "./settings.js";
 import { isDamageMessage, resolveNarrationData } from "./resolver.js";
 import { generateNarration } from "./generator.js";
 import { sendNarration } from "./output.js";
+import { maybeCreateDirectorNote } from "./director/director-engine.js";
 
 export function registerChatHooks() {
   Hooks.on("renderChatMessageHTML", (message, html) => onRenderChatMessage(message, html));
@@ -29,6 +30,7 @@ async function onRenderChatMessage(message, html) {
 
   if (automationMode === "all" || (automationMode === "critical" && data.critical)) {
     await sendNarration(generateNarration(data));
+    await maybeCreateDirectorNote(data);
     return;
   }
 
@@ -48,6 +50,7 @@ function injectButton(message, html) {
     event.preventDefault();
     const data = resolveNarrationData(message);
     await sendNarration(generateNarration(data));
+    await maybeCreateDirectorNote(data);
   });
 
   const footer = element.querySelector(".message-content") ?? element;

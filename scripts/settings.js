@@ -69,6 +69,44 @@ export function registerSettings() {
     type: Number,
     default: 5
   });
+
+  game.settings.register(MODULE_ID, "directorEnabled", {
+    name: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorEnabled.name"),
+    hint: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorEnabled.hint"),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register(MODULE_ID, "directorOutputMode", {
+    name: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorOutputMode.name"),
+    hint: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorOutputMode.hint"),
+    scope: "world",
+    config: true,
+    type: String,
+    default: "gmBlind",
+    choices: {
+      gmBlind: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorOutputMode.choices.gmBlind"),
+      gmWhisper: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorOutputMode.choices.gmWhisper"),
+      public: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorOutputMode.choices.public")
+    }
+  });
+
+  game.settings.register(MODULE_ID, "directorFrequency", {
+    name: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorFrequency.name"),
+    hint: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorFrequency.hint"),
+    scope: "world",
+    config: true,
+    type: String,
+    default: "normal",
+    choices: {
+      rare: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorFrequency.choices.rare"),
+      normal: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorFrequency.choices.normal"),
+      frequent: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorFrequency.choices.frequent"),
+      always: game.i18n.localize("PF2E_NARRATIVE_FORGE.Settings.directorFrequency.choices.always")
+    }
+  });
 }
 
 export function getSetting(key) {
