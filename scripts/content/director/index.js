@@ -5,6 +5,8 @@ import { DIRECTOR_PLANT } from "./plant.js";
 import { DIRECTOR_CONSTRUCT } from "./construct.js";
 import { DIRECTOR_OOZE } from "./ooze.js";
 import { DIRECTOR_ELEMENTAL } from "./elemental.js";
+import { DIRECTOR_DRAGON } from "./dragon.js";
+import { DIRECTOR_ABERRATION } from "./aberration.js";
 
 export const DIRECTOR_NOTES = {
   humanoid: DIRECTOR_HUMANOID,
@@ -13,5 +15,7 @@ export const DIRECTOR_NOTES = {
   plant: DIRECTOR_PLANT,
   construct: DIRECTOR_CONSTRUCT,
   ooze: DIRECTOR_OOZE,
-  elemental: DIRECTOR_ELEMENTAL
+  elemental: DIRECTOR_ELEMENTAL,
+  dragon: DIRECTOR_DRAGON,
+  aberration: DIRECTOR_ABERRATION
 };
