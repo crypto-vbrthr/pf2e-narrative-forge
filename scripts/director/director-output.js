@@ -13,23 +13,5 @@ export async function sendDirectorNote(content, outputMode) {
     messageData.blind = true;
   }
 
-  console.groupCollapsed("pf2e-narrative-forge | Director Output | ChatMessage.create");
-  console.log("Output mode", outputMode);
-  console.log("Message data", {
-    blind: messageData.blind ?? false,
-    whisper: messageData.whisper ?? [],
-    contentLength: String(content ?? "").length,
-    contentPreview: String(content ?? "").slice(0, 500)
-  });
-
-  try {
-    const message = await ChatMessage.create(messageData);
-    console.log("SUCCESS", message);
-    return message;
-  } catch (error) {
-    console.error("FAILED", error);
-    throw error;
-  } finally {
-    console.groupEnd();
-  }
+  return ChatMessage.create(messageData);
 }
