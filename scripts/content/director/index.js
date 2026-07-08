@@ -9,6 +9,8 @@ import { DIRECTOR_DRAGON } from "./dragon.js";
 import { DIRECTOR_ABERRATION } from "./aberration.js";
 import { DIRECTOR_FIEND } from "./fiend.js";
 import { DIRECTOR_CELESTIAL } from "./celestial.js";
+import { DIRECTOR_FEY } from "./fey.js";
+import { DIRECTOR_SPIRIT } from "./spirit.js";
 
 export const DIRECTOR_NOTES = {
   humanoid: DIRECTOR_HUMANOID,
@@ -21,5 +23,7 @@ export const DIRECTOR_NOTES = {
   dragon: DIRECTOR_DRAGON,
   aberration: DIRECTOR_ABERRATION,
   fiend: DIRECTOR_FIEND,
-  celestial: DIRECTOR_CELESTIAL
+  celestial: DIRECTOR_CELESTIAL,
+  fey: DIRECTOR_FEY,
+  spirit: DIRECTOR_SPIRIT
 };
