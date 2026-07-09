@@ -2,14 +2,15 @@
   "id": "pf2e-narrative-forge",
   "title": "PF2E Narrative Forge",
   "description": "Adds localized narrative tools and configurable combat narration for Pathfinder 2e damage chat messages.",
-  "version": "0.3.0c",
+  "version": "0.4.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
   },
   "authors": [
     {
-      "name": "crypto-vbrthr"
+      "name": "crypto-vbrthr",
+      "url": "https://github.com/crypto-vbrthr"
     }
   ],
   "esmodules": [
@@ -41,5 +42,9 @@
         }
       }
     ]
-  }
+  },
+  "url": "https://github.com/crypto-vbrthr/pf2e-narrative-forge",
+  "manifest": "https://raw.githubusercontent.com/crypto-vbrthr/pf2e-narrative-forge/main/module.json",
+  "download": ""
+
 }
