@@ -11,6 +11,9 @@ import { DIRECTOR_FIEND } from "./fiend.js";
 import { DIRECTOR_CELESTIAL } from "./celestial.js";
 import { DIRECTOR_FEY } from "./fey.js";
 import { DIRECTOR_SPIRIT } from "./spirit.js";
+import { DIRECTOR_GIANT } from "./giant.js";
+import { DIRECTOR_MONITOR } from "./monitor.js";
+import { DIRECTOR_FUNGUS } from "./fungus.js";
 
 export const DIRECTOR_NOTES = {
   humanoid: DIRECTOR_HUMANOID,
@@ -25,5 +28,7 @@ export const DIRECTOR_NOTES = {
   fiend: DIRECTOR_FIEND,
   celestial: DIRECTOR_CELESTIAL,
   fey: DIRECTOR_FEY,
-  spirit: DIRECTOR_SPIRIT
+  spirit: DIRECTOR_SPIRIT,giant: DIRECTOR_GIANT,
+  monitor: DIRECTOR_MONITOR,
+  fungus: DIRECTOR_FUNGUS
 };
